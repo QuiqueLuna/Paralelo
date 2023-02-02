@@ -1,8 +1,9 @@
-﻿#include "cuda_runtime.h"
+#include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 /*
 __global__ void idx_calc_tid(){
@@ -153,14 +154,21 @@ int main(){
     cudaMemcpy(dev_c, host_c, size * sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(dev_d, host_d, size * sizeof(int), cudaMemcpyHostToDevice);
 
-    dim3 grid(8,4,4);
+    dim3 grid(5,4,4);
     dim3 block(8,4,4);
 
+    clock_t gpu_start, gpu_stop;
+
     sum_array_cpu(host_a, host_b, host_c, host_d, size);
+    gpu_start = clock();
     sum_array_gpu << <grid, block >> > (dev_a, dev_b, dev_c, dev_d, size);
     cudaMemcpy(check, dev_d, size * sizeof(int), cudaMemcpyDeviceToHost);
     cudaDeviceSynchronize();
+    gpu_stop = clock();
     cudaDeviceReset();
+
+    double cps_gpu = (double)((double)(gpu_stop - gpu_start) / CLOCKS_PER_SEC);
+    printf("Execution Time [ET-GPU]: %4.6f\n\r", cps_gpu);
 
     bool ok = true;
     for (int i = 0; i < size; i++) {
@@ -169,7 +177,7 @@ int main(){
         }
     }
 
-
+    /*
     printf("Host\n");
     for (int i = 0; i < 10; i++) {
         printf("%d ", host_d[i]);
@@ -181,6 +189,7 @@ int main(){
         printf("%d ", check[i]);
     }
     printf("\n");
+    */
 
 
     if (ok) {

@@ -37,10 +37,6 @@ __global__ void divergence(){
     }
 }
 
-__global__ void no_divergence(int *c, const int *a, const int *b){
-    int i = threadIdx.x;
-    c[i] = a[i] + b[i];
-}
 
 int main(){
     int size = 1 << 22;

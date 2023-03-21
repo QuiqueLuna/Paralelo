@@ -1,4 +1,4 @@
-﻿
+
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include <random>
@@ -35,7 +35,7 @@ __global__ void unroll(int* a, int* b, int n) {
 
 int main() {
 
-    const int n = 12;
+    const int n = 256;
     int* host_a, * host_b;
     int* dev_a, * dev_b;
     host_a = (int*)malloc(n * sizeof(int));
@@ -61,10 +61,18 @@ int main() {
 
     cudaMemcpy(dev_a, host_a, n * sizeof(int), cudaMemcpyHostToDevice);
 
-    dim3 block(32, 32);
-    dim3 grid(32 / n, 32 / n);
+    dim3 block(128);
+    dim3 grid(256 / 128 / 2);
     unroll << <grid, block >> > (dev_a, dev_b, n);
+    cudaMemcpy(host_a, dev_a, n * sizeof(int), cudaMemcpyDeviceToHost);
     cudaMemcpy(host_b, dev_b, n * sizeof(int), cudaMemcpyDeviceToHost);
+
+
+    printf("A: \n");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", host_a[i]);
+    }
+    printf("\n");
 
     printf("B: \n");
     for (int i = 0; i < n; i++) {

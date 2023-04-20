@@ -1,4 +1,4 @@
-﻿
+
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include <random>
@@ -181,17 +181,16 @@ __global__ void mediaUnrollComplete(patients* data, patients* temp) {
     
 }
 
-void mediaCPU(patients* data, double ageMed ,double* res) {
+void mediaCPU(patients* data, double* res) {
     for (int i = 0; i < N; i++) {
-        ageMed += data->age[i];
-        res[0] += data->glucosa[i];
-        res[1] += data->heart_rate[i];
-        res[2] += data->pressure_s[i];
-        res[3] += data->pressure_d[i];
+        res[0] += data->age[i];
+        res[1] += data->glucosa[i];
+        res[2] += data->heart_rate[i];
+        res[3] += data->pressure_s[i];
+        res[4] += data->pressure_d[i];
     }
-    printf("SUMAS: %f %f %f %f %f\n", ageMed,res[0],res[1],res[2],res[3]);
-    ageMed /= (double)N;
-    for (int i = 0; i < 4; i++) {
+    printf("SUMAS: %f %f %f %f %f\n", res[0],res[1],res[2],res[3], res[4]);
+    for (int i = 0; i < 5; i++) {
         res[i] /= N;
     }
 }
@@ -301,14 +300,13 @@ int main() {
 
 
     //CPU
-    int ageMed=0;
     double* resCPU;
     resCPU = (double*)malloc(sizeof(double) * 4);
     for (int i = 0; i < 5; i++) {
         resCPU[i] = 0;
     }
-    mediaCPU(host_a, ageMed, resCPU);
-    printf("Medias:\nAge: %f Glucosa: %f HeartRate: %f Pressure_d: %f Pressure_d: %f \n", ageMed, resCPU[0], resCPU[1], resCPU[2], resCPU[3]);
+    mediaCPU(host_a, resCPU);
+    printf("Medias:\nAge: %f Glucosa: %f HeartRate: %f Pressure_d: %f Pressure_d: %f \n", resCPU[0], resCPU[1], resCPU[2], resCPU[3],resCPU[4]);
     printf("\n");
 
 
